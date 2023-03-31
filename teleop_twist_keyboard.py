@@ -10,6 +10,17 @@ import rospy
 from geometry_msgs.msg import Twist
 from geometry_msgs.msg import TwistStamped
 
+# grab from mqtt
+from paho.mqtt.client import mqtt
+
+client = mqtt.Client()
+topic = 'vel'
+
+
+
+#Make array of movement from mqtt
+command_list = ["FORWARD", "REVERSE", "LEFT", "RIGHT"]
+
 import sys
 from select import select
 
@@ -48,8 +59,13 @@ e/c : increase/decrease only angular speed by 10%
 CTRL-C to quit
 """
 
-moveBindings = {
-        'i':(1,0,0,0),
+# U - forward, M - reverse, u - left, i - right
+moveBindings = { 
+    command_list[0]: (1,1,0,0),
+    command_list[1]: (-1,1,0,0),
+    command_list[2]: (1,0,0,1),
+    command_list[3]: (1,0,0,0),
+        'i':(1,0,0,0), 
         'o':(1,0,0,-1),
         'j':(0,0,0,1),
         'l':(0,0,0,-1),
@@ -226,7 +242,7 @@ if __name__=="__main__":
         print(msg)
         print(vels(speed,turn))
         while(1):
-            key = getKey(settings, key_timeout)
+            key = getKey(settings, key_timeout) | client.subscribe(topic)
             if key in moveBindings.keys():
                 x = moveBindings[key][0]
                 y = moveBindings[key][1]
@@ -242,7 +258,7 @@ if __name__=="__main__":
                 print(vels(speed,turn))
                 if (status == 14):
                     print(msg)
-                status = (status + 1) % 15
+                status = (status + 1) % 15                    
             else:
                 # Skip updating cmd_vel if key timeout and robot already
                 # stopped.
