@@ -244,11 +244,13 @@ if __name__=="__main__":
         while(1):
             key = getKey(settings, key_timeout) | client.subscribe(topic)
             if key in moveBindings.keys():
+                print(key)
                 x = moveBindings[key][0]
                 y = moveBindings[key][1]
                 z = moveBindings[key][2]
                 th = moveBindings[key][3]
             elif key in speedBindings.keys():
+                print(key)
                 speed = min(speed_limit, speed * speedBindings[key][0])
                 turn = min(turn_limit, turn * speedBindings[key][1])
                 if speed == speed_limit:
